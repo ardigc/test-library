@@ -17,7 +17,7 @@ export async function test(description: string, callback: () => void) {
   }
 }
 export const it = test;
-export function describe(description: string, callback: () => void) {
+export  function  describe(description: string, callback: () => void) {
   console.log(description);
-  callback();
+   callback();
 }
