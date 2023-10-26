@@ -1,6 +1,6 @@
 import { average, sum } from "../stats";
 
-describe.only("Stats should", () => {
+describe("Stats should", () => {
   it("calculate sum", () => {
     const result = sum([1, 2, 3]);
     const expected = 6;
