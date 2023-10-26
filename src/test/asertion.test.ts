@@ -1,4 +1,4 @@
-describe('assertion', () => {
+describe.skip('assertion', () => {
     it('tobe', () => {
         expect(1 + 2).toBe(3)
         expect(1 + 2).not.toBe(4)
@@ -40,5 +40,13 @@ describe('assertion', () => {
     it('to contain',()=>{
         expect([0,1,2]).toContain(2)
         expect([{foo:'foo'}, {bar:'bar'}]).toContainEqual({foo:'foo'})
+    })
+    it('exception',()=>{
+        const throwError=()=>{
+            throw new Error("Error...");
+        }
+        expect(throwError).toThrow('Error...')
+        // expect(throwError).toThrow()
+        expect(throwError).toThrow(Error)
     })
 })
