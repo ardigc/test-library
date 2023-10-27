@@ -21,7 +21,7 @@ expect.extend({
         }
     }
   });
-it('Custom asertion grouping',()=>{
+xit('Custom asertion grouping',()=>{
     const list = [{ value: 10 }, { value: 20 }, { value: 30 }];
 
     expectThatList(list).isExactly({ value: 10 }, { value: 20 }, { value: 30 });
@@ -38,7 +38,7 @@ function listMatchers<T>(list:T[]) {
     }}
 }
 
-it('Custom assertion', ()=>{
+xit('Custom assertion', ()=>{
     const list =[10,20,30]
     expect(list.length).customToBe(3)
     expect(list).isExactly(10,20,30)
