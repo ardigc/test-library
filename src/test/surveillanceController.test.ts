@@ -9,7 +9,6 @@ describe('The suveillance controler', () => {
     })
     it('ask the recorder to start when sensor detects motion', () => {
         const sensor = new stubSensorDetectingNoMotion()
-   
         const recorder = new spyRecording()
         sensor.isDetectingMotion = () => true
         const controller = new SurveillanceController(sensor, recorder)
