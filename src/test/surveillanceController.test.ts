@@ -21,6 +21,13 @@ describe('The suveillance controler', () => {
         
         expect(spyRecorder).toHaveBeenCalled();
     })
+    it('check the sensor status one per second', () => {
+        const spySensor = jest.spyOn(sensor, 'isDetectingMotion')
+        const numberOfSeconds=3
+        controller.recordMotion(numberOfSeconds);
+        
+        expect(spySensor).toHaveBeenCalledTimes(numberOfSeconds);
+    })
     it('ask the recorder to stop when sensor throw unespected error', () => {
         const stubSensor = jest.spyOn(sensor, 'isDetectingMotion')
         stubSensor.mockImplementation(()=>{
