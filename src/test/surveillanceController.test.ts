@@ -1,39 +1,41 @@
 import { MotionSensor, VideoRecorder, SurveillanceController } from "../surveillanceControler";
 describe('The suveillance controler', () => {
+    let sensor: MotionSensor
+    let recorder: VideoRecorder
+    let controller: SurveillanceController
+    beforeEach(() => {
+        sensor = new FakeSensor()
+        recorder = new FakeRecorder()
+        controller = new SurveillanceController(sensor, recorder)
+    })
     it('ask the recorder to stop when sensor detects no motion', () => {
-        const sensor = new stubSensorDetectingNoMotion()
-        const recorder = new spyRecording()
-        const controller = new SurveillanceController(sensor, recorder)
+        const spyRecorder = jest.spyOn(recorder, 'stopRecording')
         controller.recordMotion()
-        expect(recorder.stopCalled).toBeTruthy()
+        expect(spyRecorder).toHaveBeenCalled()
     })
     it('ask the recorder to start when sensor detects motion', () => {
-        const sensor = new stubSensorDetectingNoMotion()
-        const recorder = new spyRecording()
-        sensor.isDetectingMotion = () => true
-        const controller = new SurveillanceController(sensor, recorder)
-        controller.recordMotion()
-        expect(recorder.startCalled).toBeTruthy()
+        const spyRecorder = jest.spyOn(recorder, 'startRecording');
+        const stubSensor = jest.spyOn(sensor, 'isDetectingMotion')
+        stubSensor.mockImplementation(() => true)
+        controller.recordMotion();
+        
+        expect(spyRecorder).toHaveBeenCalled();
+    })
+    it('ask the recorder to stop when sensor throw unespected error', () => {
+        const stubSensor = jest.spyOn(sensor, 'isDetectingMotion')
+        stubSensor.mockImplementation(()=>{
+            throw new Error("Unespected error");   
+        })
+        const spyRecorder = jest.spyOn(recorder, 'startRecording');
+        stubSensor.mockImplementation(() => true)
+        controller.recordMotion();
+        
+        expect(spyRecorder).toHaveBeenCalled();
     })
 })
-class stubSensorDetectingNoMotion implements MotionSensor {
+class FakeSensor implements MotionSensor {
     isDetectingMotion(): boolean {
         return false
-    }
-}
-class stubSensorDetectingMotion implements MotionSensor {
-    isDetectingMotion(): boolean {
-        return true
-    }
-}
-class spyRecording implements VideoRecorder {
-    startCalled = false
-    stopCalled = false
-    startRecording(): void {
-        this.startCalled = true
-    }
-    stopRecording(): void {
-        this.stopCalled = true
     }
 }
 class FakeRecorder implements VideoRecorder {
