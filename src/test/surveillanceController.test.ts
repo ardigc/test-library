@@ -1,37 +1,42 @@
-import { MotionSensor,VideoRecorder, SurveillanceController} from "../surveillanceControler";
+import { MotionSensor, VideoRecorder, SurveillanceController } from "../surveillanceControler";
 describe('The suveillance controler', () => {
     it('ask the recorder to stop when sensor detects no motion', () => {
-        const sensor = new FakeSensor()
-        let called = false
-        const saveCall = () => {
-            called = true
-        }
-        const recorder = new FakeRecorder()
-        recorder.stopRecording = saveCall
+        const sensor = new stubSensorDetectingNoMotion()
+        const recorder = new spyRecording()
         const controller = new SurveillanceController(sensor, recorder)
         controller.recordMotion()
-        expect(called).toBeTruthy()
+        expect(recorder.stopCalled).toBeTruthy()
     })
     it('ask the recorder to start when sensor detects motion', () => {
-        const sensor = new FakeSensor()
-        let called = false
-        const saveCall = () => {
-            called = true
-        }
-        const recorder = new FakeRecorder()
-        sensor.isDetectingMotion=()=>true
-        recorder.startRecording = saveCall
+        const sensor = new stubSensorDetectingNoMotion()
+   
+        const recorder = new spyRecording()
+        sensor.isDetectingMotion = () => true
         const controller = new SurveillanceController(sensor, recorder)
         controller.recordMotion()
-        expect(called).toBeTruthy()
+        expect(recorder.startCalled).toBeTruthy()
     })
 })
-class FakeSensor implements MotionSensor {
+class stubSensorDetectingNoMotion implements MotionSensor {
     isDetectingMotion(): boolean {
         return false
     }
 }
-
+class stubSensorDetectingMotion implements MotionSensor {
+    isDetectingMotion(): boolean {
+        return true
+    }
+}
+class spyRecording implements VideoRecorder {
+    startCalled = false
+    stopCalled = false
+    startRecording(): void {
+        this.startCalled = true
+    }
+    stopRecording(): void {
+        this.stopCalled = true
+    }
+}
 class FakeRecorder implements VideoRecorder {
     startRecording(): void {
         console.log('Start recording...')
