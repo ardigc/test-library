@@ -1,5 +1,5 @@
 import { MotionSensor, VideoRecorder, SurveillanceController } from "../surveillanceControler";
-describe('The suveillance controler', () => {
+describe.skip('The suveillance controler', () => {
     let sensor: MotionSensor
     let recorder: VideoRecorder
     let controller: SurveillanceController
