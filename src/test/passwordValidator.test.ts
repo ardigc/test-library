@@ -12,5 +12,8 @@ describe('The password strength validator', () => {
     it('fails when password is missing a lowercase', () => {
         expect(isStrongPassword('1234ABCD_')).toBe(false)
     })
+    it('fails when password is missing a upercase', () => {
+        expect(isStrongPassword('1234abcd_')).toBe(false)
+    })
 
 })
