@@ -1,5 +1,5 @@
 export const isStrongPassword = (pass: string) => {
-return hasSixCharactersOrMore(pass)&&containsNumber(pass)&& containsLowecase(pass)
+return hasSixCharactersOrMore(pass)&&containsNumber(pass)&& containsLowecase(pass)&&/.*[A-Z].*./.test(pass)
 }
 const containsNumber=(pass:string)=>{
     return /.*\d.*/.test(pass)
