@@ -1,4 +1,10 @@
 import { CsvFilter } from "../CsvFilter";
+interface FileWithOneInvoiceLineHavingParams {
+    ivaTax?: string;
+    igicTax?: string;
+    netAmount?: string;
+    nif?: string;
+  }
 describe('CSV filter',() => {
     const header = 'Num_factura, Fecha, Bruto, Neto, IVA, IGIC, Concepto, CIF_cliente, NIF_cliente';
     const emptyField = '';
@@ -72,13 +78,19 @@ describe('CSV filter',() => {
       
         expect(result).toEqual([header]);
       });
-      function fileWithOneInvoiceLineHaving(ivaTax: string = '21', igicTax: string = emptyField, netAmount: string = '790') {
+
+      
+      function fileWithOneInvoiceLineHaving({
+        ivaTax = '21',
+        igicTax = emptyField,
+        netAmount = '790',
+        nif = emptyField
+      }: FileWithOneInvoiceLineHavingParams) {
         const invoiceId = '1';
         const invoiceDate = '02/05/2019';
         const grossAmount = '1000';
         const concept = 'ACER Laptop';
         const cif = 'B76430134';
-        const nif = emptyField;
         return [invoiceId, invoiceDate, grossAmount, netAmount, ivaTax, igicTax, concept, cif, nif].join(',');
       }
   });
