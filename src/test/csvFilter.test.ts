@@ -87,6 +87,16 @@ describe('CSV filter',() => {
       
         expect(result).toEqual([header]);
       });
+      it('allows only multiple correct lines', () => {
+        const invoiceLine = fileWithOneInvoiceLineHaving({});
+        const invoiceLine2 = fileWithOneInvoiceLineHaving({});
+      
+        const csvFilter = CsvFilter.create([header, invoiceLine, invoiceLine2]);
+      
+        const result = csvFilter.filteredLines;
+      
+        expect(result).toEqual([header, invoiceLine, invoiceLine2]);
+      });
       
       function fileWithOneInvoiceLineHaving({
         ivaTax = '21',
