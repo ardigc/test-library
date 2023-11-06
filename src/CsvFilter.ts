@@ -19,7 +19,9 @@ export class CsvFilter {
         const netAmountIsWellCalculated =
             this.checkIfNetAmountIsCorrect(netAmountField, grossAmountField, ivaField) ||
             this.checkIfNetAmountIsCorrect(netAmountField, grossAmountField, igicField);
-        if (taxFieldAreMutuallyExclusive && netAmountIsWellCalculated&& (!fields[7]||!fields[8])) {
+            const identifierFieldsAreMutuallyExclusive = !fields[7] || !fields[8];
+
+        if (taxFieldAreMutuallyExclusive && netAmountIsWellCalculated&& identifierFieldsAreMutuallyExclusive) {
             result.push(this.lines[1]);
         }
         return result;
