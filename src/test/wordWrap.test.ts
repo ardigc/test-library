@@ -1,5 +1,7 @@
 function wordWrap(text: string, columnWidth: number) {
     if (text==null) return ''
+    if (columnWidth<0) throw new Error('Nevative colums is not allowed');
+    
     if (text.length <= columnWidth) {
       return text;
     }
@@ -32,5 +34,6 @@ describe('The word wrap ', () => {
         expect(wordWrap(' abcd', 4)).toBe('\nabcd');
         expect(wordWrap(null, 4)).toBe('');
         expect(wordWrap(undefined, 4)).toBe('');
+        expect(()=>wordWrap('hello', -5)).toThrow('Nevative colums is not allowed');
     })
 })
