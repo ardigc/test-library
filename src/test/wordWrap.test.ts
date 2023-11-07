@@ -1,18 +1,26 @@
 function wordWrap(text: string, columnWidth: number) {
-  if (text.length <= columnWidth) {
-    return text;
+    if (text.length <= columnWidth) {
+      return text;
+    }
+    
+    const wrapIndex = getWrapIndex(text, columnWidth);
+    const unwrapIndex = getUnwrapIndex(text, columnWidth);
+    const wrappedText = text.substring(0, wrapIndex).concat('\n');
+    const unwrappedText = text.substring(unwrapIndex);
+    return wrappedText.concat(wordWrap(unwrappedText, columnWidth));
   }
-  let wrappedText;
-  let unwrappedText;
-  if (text.indexOf(' ') > -1 && text.indexOf(' ') < columnWidth) {
-    wrappedText = text.substring(0, text.indexOf(' ')).concat('\n');
-    unwrappedText = text.substring(text.indexOf(' ') + 1);
-  } else {
-    wrappedText = text.substring(0, columnWidth).concat('\n');
-    unwrappedText = text.substring(columnWidth);
+  
+  function getWrapIndex(text: string, columnWidth: number) {
+    const indexOfSpace = text.indexOf(' ');
+    const shallWrapBySpace = indexOfSpace > -1 && indexOfSpace < columnWidth;
+    return shallWrapBySpace ? indexOfSpace : columnWidth;
   }
-  return wrappedText.concat(wordWrap(unwrappedText, columnWidth));
-}
+  
+  function getUnwrapIndex(text: string, columnWidth: number) {
+    const indexOfSpace = text.indexOf(' ');
+    const shallWrapBySpace = indexOfSpace > -1 && indexOfSpace < columnWidth;
+    return shallWrapBySpace ? indexOfSpace + 1 : columnWidth;
+  }
 describe('The word wrap ', () => {
     it('makes every single line of test fit column width', () => {
         expect(wordWrap('hello', 5)).toBe('hello')
