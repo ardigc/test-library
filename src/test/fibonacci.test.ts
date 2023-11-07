@@ -8,5 +8,6 @@ describe('The fibonacci sequence', () => {
     })
     it('is a series where the value for a number is de addition of the preceding two values', () => {
         expect(fibonacci(2)).toBe(fibonacci(0)+fibonacci(1))
+        expect(fibonacci(3)).toBe(fibonacci(2)+fibonacci(1))
     })
 })
