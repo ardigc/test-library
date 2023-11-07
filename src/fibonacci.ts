@@ -1,3 +1,6 @@
 export function fibonacci(number:number) {
-    return number
+    if (number ===0) {
+        return 0
+    }
+    return 1
 }
