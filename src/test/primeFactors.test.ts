@@ -18,5 +18,6 @@ describe('The prime factors',()=>{
         expect(getPrimesFactor(2*3)).toEqual([2,3])
         expect(getPrimesFactor(3*3)).toEqual([3,3])
         expect(getPrimesFactor(5*5)).toEqual([5,5])
+        expect(getPrimesFactor(5 * 7 * 11 * 3)).toEqual([3,5,7,11])
     })
 })
