@@ -13,5 +13,6 @@ describe('The prime factors',()=>{
     it('finds the prime comopsition of the given number',()=>{
         expect(getPrimesFactor(2)).toEqual([2])
         expect(getPrimesFactor(2*2)).toEqual([2,2])
+        expect(getPrimesFactor(2*2*2)).toEqual([2,2,2])
     })
 })
