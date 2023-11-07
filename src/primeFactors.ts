@@ -3,7 +3,7 @@ export function getPrimesFactor(number: number) {
     const factors = [factor]
     const remainder = number/factor
     if (remainder > 1) {
-        factors.push(factor)
+        return factors.concat(getPrimesFactor(factor))
     }
     return factors
 }
