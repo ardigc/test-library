@@ -15,29 +15,29 @@ export class CsvFilter {
     }
     const header = this.lines[0];
     const invoices = this.lines.slice(1);
-    const validatedInvoices = invoices.filter(this.validateInvoice)
+    const validatedInvoices = invoices.filter(this.isValidInvoice)
     const duplicatedIds = this.takeRepeatedInvoiceIds(validatedInvoices)
     const nonRepeatedInvoices = validatedInvoices.filter((invoice) => !duplicatedIds.includes(invoice.split(',')[0]))
     return [header].concat(nonRepeatedInvoices);
   }
 
-  private validateInvoice = (invoice) => {
+  private isValidInvoice = (invoice) => {
     const fields = invoice.split(',');
     const ivaField = fields[4];
     const igicField = fields[5];
     const decimalRegex = '\\d+(\\.\\d+)?';
-    const taxFieldAreMutuallyExclusive =
+    const aretTaxFieldsMutuallyExclusive =
       (ivaField.match(decimalRegex) || igicField.match(decimalRegex)) && (!ivaField || !igicField);
     const grossAmountField = fields[2];
     const netAmountField = fields[3];
-    const netAmountIsWellCalculated =
-      this.checkIfNetAmountIsCorrect(netAmountField, grossAmountField, ivaField) ||
-      this.checkIfNetAmountIsCorrect(netAmountField, grossAmountField, igicField);
-    const identifierFieldsAreMutuallyExclusive = !fields[7] || !fields[8];
-    return taxFieldAreMutuallyExclusive && netAmountIsWellCalculated && identifierFieldsAreMutuallyExclusive;
+    const isNetAmountCorrect =
+      this.hasCorrectAmount(netAmountField, grossAmountField, ivaField) ||
+      this.hasCorrectAmount(netAmountField, grossAmountField, igicField);
+    const areIdentifierFieldsMutuallyExclusive = !fields[7] || !fields[8];
+    return aretTaxFieldsMutuallyExclusive && isNetAmountCorrect && areIdentifierFieldsMutuallyExclusive;
   }
 
-  private checkIfNetAmountIsCorrect(netAmountField: string, grossAmountField: string, taxField: string) {
+  private hasCorrectAmount(netAmountField: string, grossAmountField: string, taxField: string) {
     const parsedNetAmount = parseFloat(netAmountField);
     const parsedGrossAmount = parseFloat(grossAmountField);
     const parsedTaxField = parseFloat(taxField);
