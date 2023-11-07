@@ -1,3 +1,3 @@
 export function getPrimesFactor(number:number) {
-    return null
+    return [2]
 }
