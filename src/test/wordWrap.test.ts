@@ -13,8 +13,10 @@ function wordWrapOld(text: string, columnWidth: number) {
     return wrappedText.concat(wordWrapOld(unwrappedText, columnWidth));
 }
 class ColumnWidth {
-    constructor(private readonly width:number) {               
+    constructor(private readonly width:number) {}
+    static create(width: number){
         if (width < 0) throw new Error('Nevative colums is not allowed');
+        return new ColumnWidth(width)
     }
     value(){
         return this.width
@@ -34,7 +36,7 @@ function wordWrapNoPrimitive(text: string, columnWidth: ColumnWidth) {
     return wrappedText.concat(wordWrapNoPrimitive(unwrappedText, columnWidth));
 }
 function wordWrap(text: string, columnWidth: number) {
-    return wordWrapNoPrimitive(text,new ColumnWidth(columnWidth))
+    return wordWrapNoPrimitive(text, ColumnWidth.create(columnWidth))
 }
 
 function getWrapIndex(text: string, columnWidth: number) {
