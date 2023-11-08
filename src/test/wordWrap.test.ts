@@ -12,27 +12,24 @@ function wordWrapOld(text: string, columnWidth: number) {
     const unwrappedText = text.substring(unwrapIndex);
     return wrappedText.concat(wordWrapOld(unwrappedText, columnWidth));
 }
+
 class ColumnWidth {
-    constructor(private readonly width:number) {}
-    static create(width: number){
-        if (width < 0) throw new Error('Nevative colums is not allowed');
-        return new ColumnWidth(width)
+    private constructor(private readonly width: number) {
     }
-    value(){
-        return this.width
+  
+    static create(width: number) {
+      if (width < 0) {
+        throw new Error('Negative column width is not allowed');
+      }
+      return new ColumnWidth(width);
     }
-}
-
-function wordWrap(text: string, columnWidth: number) {
-    return wordWrapNoPrimitives(WrappableText.create(text), ColumnWidth.create(columnWidth));
+  
+    value() {
+      return this.width;
+    }
   }
-
-function getWrapIndex(text: string, columnWidth: number) {
-    const indexOfSpace = text.indexOf(' ');
-    const shallWrapBySpace = indexOfSpace > -1 && indexOfSpace < columnWidth;
-    return shallWrapBySpace ? indexOfSpace : columnWidth;
-}
-class WrappableText {
+  
+  class WrappableText {
     private constructor(private readonly text: string) { }
   
     static create(text: string) {
@@ -41,41 +38,66 @@ class WrappableText {
       }
       return new WrappableText(text);
     }
-    
-  fitsIn(columnWidth: ColumnWidth) {
-    return this.value().length <= columnWidth.value();
-  }
-
-  wrapIndex(columnWidth: ColumnWidth) {
-    const indexOfSpace = this.value().indexOf(' ');
-    const shallWrapBySpace = indexOfSpace > -1 && indexOfSpace < columnWidth.value();
-    return shallWrapBySpace ? indexOfSpace : columnWidth.value();
-  }
-
-  unwrapIndex(columnWidth: ColumnWidth) {
-    const indexOfSpace = this.value().indexOf(' ');
-    const shallWrapBySpace = indexOfSpace > -1 && indexOfSpace < columnWidth.value();
-    return shallWrapBySpace ? indexOfSpace + 1 : columnWidth.value();
-  }
-
-  value() {
-    return this.text;
-  }
-}
-function wordWrapNoPrimitives(text: WrappableText, columnWidth: ColumnWidth) {
-    if (text.fitsIn(columnWidth)) {
-      return text.value();
+  
+    fitsIn(columnWidth: ColumnWidth) {
+      return this.value().length <= columnWidth.value();
     }
-    const wrapIndex = text.wrapIndex(columnWidth);
-    const unwrapIndex = text.unwrapIndex(columnWidth);
-    const wrappedText = text.value().substring(0, wrapIndex).concat('\n');
-    const unwrappedText = text.value().substring(unwrapIndex);
-    return wrappedText.concat(wordWrapNoPrimitives(WrappableText.create(unwrappedText), columnWidth));
+  
+    concat(text: WrappableText) {
+      return WrappableText.create(this.value().concat(text.value()));
+    }
+  
+    wrappedText(columnWidth: ColumnWidth) {
+      return WrappableText.create(this.value().substring(0, this.wrapIndex(columnWidth)).concat('\n'));
+    }
+  
+    private wrapIndex(columnWidth: ColumnWidth) {
+      return this.shallWrapBySpace(columnWidth) ? this.indexOfSpace() : columnWidth.value();
+    }
+  
+    unwrappedText(columnWidth: ColumnWidth) {
+      return WrappableText.create(this.value().substring(this.unwrapIndex(columnWidth)));
+    }
+  
+    private unwrapIndex(columnWidth: ColumnWidth) {
+      return this.shallWrapBySpace(columnWidth) ? this.indexOfSpace() + 1 : columnWidth.value();
+    }
+  
+    private shallWrapBySpace(columnWidth: ColumnWidth) {
+      return this.indexOfSpace() > -1 && this.indexOfSpace() < columnWidth.value();
+    }
+  
+    private indexOfSpace() {
+      return this.value().indexOf(' ');
+    }
+  
+    value() {
+      return this.text;
+    }
   }
+  
+  function wordWrap(text: string, columnWidth: number) {
+    return wordWrapNoPrimitives(WrappableText.create(text), ColumnWidth.create(columnWidth)).value();
+  }
+  
+  function wordWrapNoPrimitives(text: WrappableText, columnWidth: ColumnWidth): WrappableText {
+    if (text.fitsIn(columnWidth)) {
+      return text;
+    }
+    const wrappedText = text.wrappedText(columnWidth);
+    const unwrappedText = text.unwrappedText(columnWidth);
+    return wrappedText.concat(wordWrapNoPrimitives(unwrappedText, columnWidth));
+  }
+
 function getUnwrapIndex(text: string, columnWidth: number) {
     const indexOfSpace = text.indexOf(' ');
     const shallWrapBySpace = indexOfSpace > -1 && indexOfSpace < columnWidth;
     return shallWrapBySpace ? indexOfSpace + 1 : columnWidth;
+}
+function getWrapIndex(text: string, columnWidth: number) {
+    const indexOfSpace = text.indexOf(' ');
+    const shallWrapBySpace = indexOfSpace > -1 && indexOfSpace < columnWidth;
+    return shallWrapBySpace ? indexOfSpace : columnWidth;
 }
 describe('The word wrap ', () => {
     it('small text does not need to be wrapped', () => {
@@ -95,8 +117,8 @@ describe('The word wrap ', () => {
         expect(wordWrap('abc def ghi', 4)).toBe('abc\ndef\nghi');
         expect(wordWrap(' abcd', 4)).toBe('\nabcd');
     })
-    it('does not allow for negative column width',()=>{
-        expect(() => wordWrap('hello', -5)).toThrow('Nevative colums is not allowed');
+    it('does not allow for negative column width', () => {
+        expect(() => wordWrap('hello', -5)).toThrow('Negative column width is not allowed');
 
     })
 })
