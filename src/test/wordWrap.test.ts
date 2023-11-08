@@ -1,19 +1,5 @@
-function wordWrapOld(text: string, columnWidth: number) {
-    if (text == null) return ''
-    if (columnWidth < 0) throw new Error('Nevative colums is not allowed');
 
-    if (text.length <= columnWidth) {
-        return text;
-    }
-
-    const wrapIndex = getWrapIndex(text, columnWidth);
-    const unwrapIndex = getUnwrapIndex(text, columnWidth);
-    const wrappedText = text.substring(0, wrapIndex).concat('\n');
-    const unwrappedText = text.substring(unwrapIndex);
-    return wrappedText.concat(wordWrapOld(unwrappedText, columnWidth));
-}
-
-class ColumnWidth {
+export class ColumnWidth {
     private constructor(private readonly width: number) {
     }
   
@@ -29,7 +15,7 @@ class ColumnWidth {
     }
   }
   
-  class WrappableText {
+  export class WrappableText {
     private constructor(private readonly text: string) { }
   
     static create(text: string) {
@@ -39,24 +25,33 @@ class ColumnWidth {
       return new WrappableText(text);
     }
   
-    fitsIn(columnWidth: ColumnWidth) {
-      return this.value().length <= columnWidth.value();
+    wordWrap(columnWidth: ColumnWidth) {
+      if (this.fitsIn(columnWidth)) {
+        return WrappableText.create(this.text);
+      }
+      const wrappedText = this.wrappedText(columnWidth);
+      const unwrappedText = this.unwrappedText(columnWidth);
+      return wrappedText.concat(unwrappedText.wordWrap(columnWidth));
     }
   
-    concat(text: WrappableText) {
-      return WrappableText.create(this.value().concat(text.value()));
+    private fitsIn(columnWidth: ColumnWidth) {
+      return this.text.length <= columnWidth.value();
     }
   
-    wrappedText(columnWidth: ColumnWidth) {
-      return WrappableText.create(this.value().substring(0, this.wrapIndex(columnWidth)).concat('\n'));
+    private concat(text: WrappableText) {
+      return WrappableText.create(this.text.concat(text.text));
+    }
+  
+    private wrappedText(columnWidth: ColumnWidth) {
+      return WrappableText.create(this.text.substring(0, this.wrapIndex(columnWidth)).concat('\n'));
     }
   
     private wrapIndex(columnWidth: ColumnWidth) {
       return this.shallWrapBySpace(columnWidth) ? this.indexOfSpace() : columnWidth.value();
     }
   
-    unwrappedText(columnWidth: ColumnWidth) {
-      return WrappableText.create(this.value().substring(this.unwrapIndex(columnWidth)));
+    private unwrappedText(columnWidth: ColumnWidth) {
+      return WrappableText.create(this.text.substring(this.unwrapIndex(columnWidth)));
     }
   
     private unwrapIndex(columnWidth: ColumnWidth) {
@@ -68,57 +63,30 @@ class ColumnWidth {
     }
   
     private indexOfSpace() {
-      return this.value().indexOf(' ');
-    }
-  
-    value() {
-      return this.text;
+      return this.text.indexOf(' ');
     }
   }
-  
-  function wordWrap(text: string, columnWidth: number) {
-    return wordWrapNoPrimitives(WrappableText.create(text), ColumnWidth.create(columnWidth)).value();
-  }
-  
-  function wordWrapNoPrimitives(text: WrappableText, columnWidth: ColumnWidth): WrappableText {
-    if (text.fitsIn(columnWidth)) {
-      return text;
-    }
-    const wrappedText = text.wrappedText(columnWidth);
-    const unwrappedText = text.unwrappedText(columnWidth);
-    return wrappedText.concat(wordWrapNoPrimitives(unwrappedText, columnWidth));
-  }
+ 
 
-function getUnwrapIndex(text: string, columnWidth: number) {
-    const indexOfSpace = text.indexOf(' ');
-    const shallWrapBySpace = indexOfSpace > -1 && indexOfSpace < columnWidth;
-    return shallWrapBySpace ? indexOfSpace + 1 : columnWidth;
-}
-function getWrapIndex(text: string, columnWidth: number) {
-    const indexOfSpace = text.indexOf(' ');
-    const shallWrapBySpace = indexOfSpace > -1 && indexOfSpace < columnWidth;
-    return shallWrapBySpace ? indexOfSpace : columnWidth;
-}
-describe('The word wrap ', () => {
-    it('small text does not need to be wrapped', () => {
-        expect(wordWrap('hello', 5)).toBe('hello')
-    })
-    it('words are wrapped when do not fit the column width', () => {
-        expect(wordWrap('longword', 4)).toBe('long\nword')
-        expect(wordWrap('reallylongword', 4)).toBe('real\nlylo\nngwo\nrd')
-    })
+  describe('The Word Wrap', () => {
     it('empty text does not need to be wrapped', () => {
-        expect(wordWrap('', 5)).toBe('');
-        expect(wordWrap(null, 4)).toBe('');
-        expect(wordWrap(undefined, 4)).toBe('');
-    })
+      expect(WrappableText.create('').wordWrap(ColumnWidth.create(5))).toEqual({ text: '' });
+      expect(WrappableText.create(null).wordWrap(ColumnWidth.create(5))).toEqual({ text: '' });
+      expect(WrappableText.create(undefined).wordWrap(ColumnWidth.create(5))).toEqual({ text: '' });
+    });
+    it('small text does not need to be wrapped', () => {
+      expect(WrappableText.create('hello').wordWrap(ColumnWidth.create(5))).toEqual({ text: 'hello' });
+    });
+    it('words are wrapped when do not fit the column width', () => {
+      expect(WrappableText.create('longword').wordWrap(ColumnWidth.create(4))).toEqual({ text: 'long\nword' });
+      expect(WrappableText.create('reallylongword').wordWrap(ColumnWidth.create(4))).toEqual({ text: 'real\nlylo\nngwo\nrd' });
+    });
     it('spaces are preferred for wrapping', () => {
-        expect(wordWrap('abc def', 4)).toBe('abc\ndef');
-        expect(wordWrap('abc def ghi', 4)).toBe('abc\ndef\nghi');
-        expect(wordWrap(' abcd', 4)).toBe('\nabcd');
-    })
+      expect(WrappableText.create('abc def').wordWrap(ColumnWidth.create(4))).toEqual({ text: 'abc\ndef' });
+      expect(WrappableText.create('abc def ghi').wordWrap(ColumnWidth.create(4))).toEqual({ text: 'abc\ndef\nghi' });
+      expect(WrappableText.create(' abcd').wordWrap(ColumnWidth.create(4))).toEqual({ text: '\nabcd' });
+    });
     it('does not allow for negative column width', () => {
-        expect(() => wordWrap('hello', -5)).toThrow('Negative column width is not allowed');
-
-    })
-})
+      expect(() => WrappableText.create('hello').wordWrap(ColumnWidth.create(-5))).toThrow('Negative column width is not allowed');
+    });
+  });
